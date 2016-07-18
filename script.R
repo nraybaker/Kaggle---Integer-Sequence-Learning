@@ -1,24 +1,88 @@
-rm(list = ls())
+# --------------------------------------------------------------------------------------
+#                      Kaggle Integer Sequence Learning Competition  
+# --------------------------------------------------------------------------------------
 
-Mode <- function(x){
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
+# --------------------------------------------------------------------------------------
+# -------------------------- Pre-processing --------------------------------------------
+# --------------------------------------------------------------------------------------
+# Remove all items (if any) from environment
+  rm(list = ls())
 
-t <- proc.time()
-options(scipen = 999)
-require(nnet)
-require(dplyr)
-require(tidyr)
-require(magrittr)
-require(readr)
-setwd("~/R/SequenceKaggle/")
+# Function to obtain mode of a sequence
+  Mode <- function(x){
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+  }
 
-test <- read_csv("test.csv")
+# Removing scientific notation
+  options(scipen = 999)
+  
+# Require necessary packages
+  # nnet - neural network package
+    require(nnet)
+  # dplyr and tidyr - used for data cleansing
+    require(dplyr)
+    require(tidyr)
+  # magrittr - used mostly for piping operator
+    require(magrittr)
+  # readr - used to read in csv
+    require(readr)
 
-lst <- lapply(test$Sequence, strsplit, ",")
-lst <- sapply(lst, sapply, as.numeric)
+# Set working directory to Documents/R/SequenceKaggle
+  setwd("~/R/SequenceKaggle/")
+  
+# Read in data into variable 'test'
+  test <- read_csv("test.csv")
+  
+# Split sequences and load into a list
+  lst <- lapply(test$Sequence, strsplit, ",")
+  lst <- sapply(lst, sapply, as.numeric)
+# -------------------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------------------------
+# ------------------------------ Network Training -------------------------------------
+# -------------------------------------------------------------------------------------
+# Creating Final Prediction Data Frame
+  df_finals <- data.frame("Id" = test$Id, "Last" = 0) 
+
+# Finding index based sequences - eg. Squares 1, 4, 9, 16...
+  for(k in 1:length(lst)){
+    # If Sequence is too small
+    while(length(lst[[k]]) < 2){
+      k <- k + 1
+    }
+    
+    # Problem Sequence
+    if(k == 26353){
+      k <- k + 1
+    }
+    
+    # Create temp data frame with index and actual
+    df <- data.frame("Index" = 0, "Actual" = 0)
+    for(i in 1:length(lst[[k]])){
+      df[i, "Index"] <- i
+      df[i, "Actual"] <- lst[[k]][i]
+    }
+    df[i + 1, "Index"] <- i + 1
+    df[i + 1, "Actual"] <- NA
+    
+    # Train neural net on temp data frame
+    nn <- nnet(Actual ~ Index, data = df[1:(nrow(df) - 2), ], size = 1, linout = TRUE, skip = TRUE)
+    
+    # If prediction known result is correct then train a neural net on entire set
+    #   and make final prediction
+    if(round(predict(nn, df[nrow(df) - 1, ]), 0) == df[nrow(df) - 1, 2]){
+      nn <- nnet(Actual ~ Index, data = df[1:(nrow(df) - 1), ], size = 1, linout = TRUE, skip = TRUE)
+      
+      df_finals[k, "Last"] <- round(predict(nn, df[nrow(df), ]), 0)
+    }
+    print(k)
+  }
+  
+  
+  
+  
 
 # Finding Independents
 df_preds_indep <- data.frame("Id" = test$Id)
