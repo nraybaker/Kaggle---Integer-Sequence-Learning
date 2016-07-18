@@ -80,6 +80,40 @@
     print(k)
   }
   
+# Remaining Results
+for(k in 1:length(lst)){
+  if(df_finals[k, "Last"] != 0){
+    k <- k + 1
+  }
+  
+  if((k == 19911) | (k == 26353) | (k == 78168)){
+    k <- k + 1
+  }
+  
+  maxLength <- length(lst[[k]]) - 2
+  
+  rows <- length(lst[[k]])
+  for(i in 1:maxLength){
+    df <- matrix(nrow = rows, ncol = i + 1)
+    df %<>% as.data.frame
+    
+    
+    
+    
+    
+    
+    
+  }
+  
+  
+  
+  
+  
+  
+}
+
+
+
   
   
   
