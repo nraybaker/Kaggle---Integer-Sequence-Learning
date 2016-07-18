@@ -9,7 +9,7 @@
   rm(list = ls())
 
 # Function to obtain mode of a sequence
-  Mode <- function(x){
+  mode <- function(x){
     ux <- unique(x)
     ux[which.max(tabulate(match(x, ux)))]
   }
@@ -79,7 +79,7 @@
     }
     print(k)
   }
-  
+
 # Remaining Results
 for(k in 1:length(lst)){
   if(df_finals[k, "Last"] != 0){
@@ -111,7 +111,6 @@ for(k in 1:length(lst)){
   
   
 }
-
 
 
   
